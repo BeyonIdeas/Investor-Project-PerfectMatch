@@ -11,6 +11,7 @@ public class Mainland {
 		tpg.setText("Input text, with words, punctuation punctuation, etc. Well, it's rather short short text text text text text text text.");
 		System.out.println(tpg.getText());
 		tpg.genPattern();
+		tpg.updatePattern();
 		HttpCom httpCom = new HttpCom();
 	}
 
