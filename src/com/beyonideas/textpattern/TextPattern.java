@@ -1,39 +1,39 @@
 package com.beyonideas.textpattern;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.ArrayList;
 
 public class TextPattern {
 
-	HashMap<String, String> pattern;
+	private ArrayList<WordPattern> wordpattern;
 
 	public TextPattern() {
-		this.pattern = new HashMap<String, String>();
-	}
-
-	public void setEntry(String key, String value){
-		this.pattern.put(key, value);
-	}
-
-	public String getEntry(String key){
-		return key+":"+pattern.get(key);
+		this.wordpattern = new ArrayList<WordPattern>();
 	}
 	
-	public String [] entries(){
-		return (String[]) pattern.keySet().toArray();
+	public ArrayList<WordPattern> getWordpattern() {
+		return wordpattern;
 	}
 
-	public void printPattern(){
-		Set<Entry<String, String>> set = pattern.entrySet();
-		Iterator<Entry<String, String>> i = set.iterator();
-		while(i.hasNext()){
-			Map.Entry me = (Map.Entry) i.next();
-			System.out.println(me.getKey().toString()+":"+pattern.get(me.getKey().toString()));
-		}
+	public void setWordpattern(String word, long total, double ratio) {
+		WordPattern wp = new WordPattern();
+		wp.setWord(word);
+		wp.setTotal(total);
+		wp.setRatio(ratio);
+		this.wordpattern.add(wp);
 	}
 
+	public int getSize(){
+		return wordpattern.size();
+	}
+
+
+//	public void printPattern(){
+//		Set<Entry<String, String>> set = pattern.entrySet();
+//		Iterator<Entry<String, String>> i = set.iterator();
+//		while(i.hasNext()){
+//			Map.Entry me = (Map.Entry) i.next();
+//			System.out.println(me.getKey().toString()+":"+pattern.get(me.getKey().toString()));
+//		}
+//	}
 
 }
