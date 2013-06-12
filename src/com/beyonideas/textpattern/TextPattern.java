@@ -4,18 +4,18 @@ import java.util.ArrayList;
 
 public class TextPattern {
 
-	private ArrayList<WordPattern> wordpattern;
+	private ArrayList<WordsPattern> wordpattern;
 
 	public TextPattern() {
-		this.wordpattern = new ArrayList<WordPattern>();
+		this.wordpattern = new ArrayList<WordsPattern>();
 	}
 	
-	public ArrayList<WordPattern> getWordpattern() {
+	public ArrayList<WordsPattern> getWordpattern() {
 		return wordpattern;
 	}
 
 	public void setWordpattern(String word, long total, double ratio) {
-		WordPattern wp = new WordPattern();
+		WordsPattern wp = new WordsPattern();
 		wp.setWord(word);
 		wp.setTotal(total);
 		wp.setRatio(ratio);
