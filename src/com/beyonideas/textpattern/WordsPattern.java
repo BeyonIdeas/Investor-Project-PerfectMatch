@@ -10,12 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -25,12 +22,52 @@ public class WordsPattern {
 
 	private HashMap<String, Double> hmTotal;
 	private HashMap<String, Double> hmRatio;
+	private HashSet<String> include;
+	private HashSet<String> exclude;
 	private Double globalTotal;
 
 	public WordsPattern(){
 		this.hmTotal = new HashMap<String, Double>();
 		this.hmRatio = new HashMap<String, Double>();
+		this.include = new HashSet<String>();
+		this.exclude = new HashSet<String>();
 		this.globalTotal = 0D;
+	}
+
+	public void readIncludeFile(String filename){
+
+		try{
+			String strLine = null;
+			FileInputStream fstream = new FileInputStream(filename);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			while ((strLine = br.readLine()) != null)   {
+				strLine = strLine.trim();
+				include.add(strLine);
+			}
+			in.close();
+		}catch (IOException e){
+			System.err.println("Error reading file: " + e.getMessage());
+		}
+
+	}
+
+	public void readExcludeFile(String filename){
+
+		try{
+			String strLine = null;
+			FileInputStream fstream = new FileInputStream(filename);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			while ((strLine = br.readLine()) != null)   {
+				strLine = strLine.trim();
+				exclude.add(strLine);
+			}
+			in.close();
+		}catch (IOException e){
+			System.err.println("Error reading file: " + e.getMessage());
+		}
+
 	}
 
 	public void putText(String text, Double relevance){
@@ -42,6 +79,30 @@ public class WordsPattern {
 	}
 
 	public void putWord(String word, Double relevance){
+
+		if(!include.isEmpty() && !exclude.isEmpty()){
+			if(include.contains(word) && !exclude.contains(word)){
+				doPutWord(word, relevance);
+			}
+		}//case 1 - Exclude, Include
+		else if(!include.isEmpty() && exclude.isEmpty()){
+			if(include.contains(word)){
+				doPutWord(word, relevance);
+			}
+		}//case 2 - Include, No exclude
+		else if(include.isEmpty() && !exclude.isEmpty()){
+			if(!exclude.contains(word)){
+				doPutWord(word, relevance);
+			}
+		}//case 3 - No include, Exclude
+		else {
+			doPutWord(word, relevance);
+		}//case 4 - No include, No exclude
+
+	}
+
+	private void doPutWord(String word, Double relevance){
+
 		if(this.hmTotal.containsKey(word)){
 			this.hmTotal.put(word, this.hmTotal.get(word)+1D);
 			this.globalTotal++;
@@ -56,6 +117,7 @@ public class WordsPattern {
 			hmRatio.put(key, hmTotal.get(key)/globalTotal);
 		}
 		clean(relevance);
+
 	}
 
 	private void clean(Double relevance){
@@ -71,7 +133,7 @@ public class WordsPattern {
 			}
 		}
 	}
-	
+
 	public Boolean containsWord(String word){
 		return hmTotal.containsKey(word);
 	}
@@ -187,9 +249,9 @@ public class WordsPattern {
 		}
 		System.out.println(content);
 	}
-	
+
 	public static Double comparePattern(WordsPattern wp, String text){
-		
+
 		Double out = 0D;
 		HashMap<String, Double> textHM = new HashMap<>();
 		Pattern p = Pattern.compile("[\\p{Alnum}]+");
@@ -203,7 +265,7 @@ public class WordsPattern {
 				textHM.put(str, 1D);
 			}
 		}
-		
+
 		Iterator<String> iterator = textHM.keySet().iterator();
 		while(iterator.hasNext()){
 			String str = iterator.next();
@@ -211,7 +273,7 @@ public class WordsPattern {
 				out += wp.getRatio(str) * textHM.get(str);
 			}
 		}
-		
+
 		return out;
 	}
 
