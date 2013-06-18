@@ -10,8 +10,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -28,7 +32,7 @@ public class WordsPattern {
 		this.hmRatio = new HashMap<String, Double>();
 		this.globalTotal = 0D;
 	}
-	
+
 	public void putText(String text, Double relevance){
 		Pattern p = Pattern.compile("[\\p{Alnum}]+");
 		Matcher m = p.matcher(text.toLowerCase());
@@ -67,13 +71,23 @@ public class WordsPattern {
 			}
 		}
 	}
+	
+	public Boolean containsWord(String word){
+		return hmTotal.containsKey(word);
+	}
 
 	public Double getTotal(String word){
-		return hmTotal.get(word);
+		if(hmTotal.containsKey(word))
+			return hmTotal.get(word);
+		else
+			return 0D;
 	}
 
 	public Double getRatio(String word){
-		return hmRatio.get(word);
+		if(hmRatio.containsKey(word))
+			return hmRatio.get(word);
+		else
+			return 0D;
 	}
 
 	public Double getGlobalTotal() {
@@ -172,6 +186,33 @@ public class WordsPattern {
 			content += key+";"+hmTotal.get(key)+";"+hmRatio.get(key)+"\n";
 		}
 		System.out.println(content);
+	}
+	
+	public static Double comparePattern(WordsPattern wp, String text){
+		
+		Double out = 0D;
+		HashMap<String, Double> textHM = new HashMap<>();
+		Pattern p = Pattern.compile("[\\p{Alnum}]+");
+		Matcher m = p.matcher(text.toLowerCase());
+		while ( m.find() ) {
+			String str = m.group();
+			if(textHM.containsKey(str)){
+				textHM.put(str, textHM.get(str)+1D);
+			}
+			else {
+				textHM.put(str, 1D);
+			}
+		}
+		
+		Iterator<String> iterator = textHM.keySet().iterator();
+		while(iterator.hasNext()){
+			String str = iterator.next();
+			if(wp.containsWord(str)){
+				out += wp.getRatio(str) * textHM.get(str);
+			}
+		}
+		
+		return out;
 	}
 
 }
